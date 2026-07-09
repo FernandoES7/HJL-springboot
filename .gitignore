@@ -60,3 +60,4 @@ desktop.ini
 
 #SQL query
 sql_hostal.sql
+sql/*.sql
