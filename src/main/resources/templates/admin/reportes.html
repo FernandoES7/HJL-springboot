@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Reportes</title></head>
+<body>
+<section>
+    <div class="report-header mb-4">
+        <div>
+            <span class="report-kicker">Panel de análisis</span>
+            <h2 class="report-title">Resumen de reportes</h2>
+            <p class="report-subtitle">
+                Indicadores del hostal para el año
+                <strong th:text="${anioSeleccionado}">2026</strong>.
+            </p>
+        </div>
+        <form method="get" th:action="@{/admin/reportes}" class="report-filter">
+            <label><i class="bi bi-calendar3 me-1"></i> Año</label>
+            <select name="anio" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option th:each="a : ${aniosDisponibles}"
+                        th:value="${a}" th:text="${a}"
+                        th:selected="${a == anioSeleccionado}"></option>
+            </select>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="report-summary-card blue">
+                <div class="report-card-top">
+                    <div>
+                        <div class="label">Ingresos</div>
+                        <div class="card-year" th:text="${anioSeleccionado}"></div>
+                    </div>
+                    <span class="report-card-icon"><i class="bi bi-cash-stack"></i></span>
+                </div>
+                <div class="value">S/ <span th:text="${#numbers.formatDecimal(ingresosTotales,1,'COMMA',0,'POINT')}">0</span></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="report-summary-card green">
+                <div class="report-card-top">
+                    <div class="label">Total Reservas</div>
+                    <span class="report-card-icon"><i class="bi bi-calendar-check"></i></span>
+                </div>
+                <div class="value" th:text="${totalReservas}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="report-summary-card orange">
+                <div class="report-card-top">
+                    <div class="label">Ocupación Actual</div>
+                    <span class="report-card-icon"><i class="bi bi-door-open"></i></span>
+                </div>
+                <div class="value">
+                    <span th:text="${habitacionesOcupadas}">0</span>/<span th:text="${totalHabitaciones}">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="report-summary-card purple">
+                <div class="report-card-top">
+                    <div class="label">Clientes</div>
+                    <span class="report-card-icon"><i class="bi bi-people"></i></span>
+                </div>
+                <div class="value" th:text="${totalClientes}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-7">
+            <div class="admin-card h-100 report-chart-card">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-bar-chart-fill me-2 text-primary"></i> Ingresos Mensuales
+                    </span>
+                    <span class="chart-badge" th:text="${anioSeleccionado}"></span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container" style="height:300px;">
+                        <canvas id="chartIngresosBar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="admin-card h-100 report-chart-card">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-pie-chart-fill me-2 text-primary"></i> Tipos de Habitación
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container" style="height:300px;">
+                        <canvas id="chartTipos"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-6">
+            <div class="admin-card report-chart-card">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-graph-up me-2 text-success"></i> Tasa de Ocupación
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container" style="height:260px;">
+                        <canvas id="chartOcupacionLine"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="admin-card report-chart-card">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-calendar2-week me-2 text-warning"></i> Reservas por Mes
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container" style="height:260px;">
+                        <canvas id="chartReservas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card report-chart-card">
+        <div class="admin-card-header">
+            <span class="admin-card-title">
+                <i class="bi bi-table me-2" style="color:#1e3a6e;"></i>
+                Resumen Mensual — <span th:text="${anioSeleccionado}"></span>
+            </span>
+        </div>
+        <div class="admin-card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Ocupación</th>
+                        <th>Ingresos (S/)</th>
+                        <th>Reservas</th>
+                    </tr>
+                    </thead>
+                    <tbody id="statsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const mesesReporte = JSON.parse(/*[[${labelsJson}]]*/ '[]');
+        const ingresosReporte = JSON.parse(/*[[${ingresosJson}]]*/ '[]');
+        const ocupacionReporte = JSON.parse(/*[[${ocupacionJson}]]*/ '[]');
+        const reservasReporte = JSON.parse(/*[[${reservasJson}]]*/ '[]');
+        const tiposReporte = JSON.parse(/*[[${tiposJson}]]*/ '[]');
+        const cantidadTiposReporte = JSON.parse(/*[[${cantidadPorTipoJson}]]*/ '[]');
+
+        Graficos.barras('chartIngresosBar', mesesReporte, ingresosReporte, { color: '#1e3a6e' });
+        Graficos.circular('chartTipos', tiposReporte, cantidadTiposReporte);
+        Graficos.linea('chartOcupacionLine', mesesReporte, ocupacionReporte, { color: '#10b981', maximo: 100 });
+        Graficos.barras('chartReservas', mesesReporte, reservasReporte, { color: '#f59e0b' });
+
+        const tbodyReporte = document.getElementById('statsBody');
+        mesesReporte.forEach((mes, i) => {
+            tbodyReporte.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td style="font-weight:600;">${mes}</td>
+                    <td>${ocupacionReporte[i]}%</td>
+                    <td>S/ ${Number(ingresosReporte[i]).toLocaleString()}</td>
+                    <td>${reservasReporte[i]}</td>
+                </tr>
+            `);
+        });
+    </script>
+</section>
+</body>
+</html>

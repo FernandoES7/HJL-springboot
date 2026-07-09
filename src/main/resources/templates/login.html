@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main}, ~{::scripts})}">
+<head>
+    <title>Iniciar sesión - Hostal Boutique José Luis</title>
+</head>
+<body>
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="text-center mb-4">
+                        <h1 class="section-title h3">Bienvenido</h1>
+                        <p class="text-muted small mb-0">Inicia sesión o crea tu cuenta</p>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+
+                    <ul class="nav nav-pills nav-fill auth-tabs mb-4" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="login-tab" data-bs-toggle="pill"
+                                    data-bs-target="#login-panel" type="button" role="tab"
+                                    th:classappend="${showRegister} ? '' : 'active'">
+                                Iniciar sesión
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="register-tab" data-bs-toggle="pill"
+                                    data-bs-target="#register-panel" type="button" role="tab"
+                                    th:classappend="${showRegister} ? 'active' : ''">
+                                Registrarse
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade" id="login-panel" role="tabpanel"
+                             th:classappend="${showRegister} ? '' : 'show active'">
+                            <form th:action="@{/login}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label fw-semibold small">Correo electrónico</label>
+                                    <input type="email" id="loginEmail" name="email" class="form-control"
+                                           th:value="${loginEmail}" placeholder="correo@email.com" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="loginPassword" class="form-label fw-semibold small">Contraseña</label>
+                                    <input type="password" id="loginPassword" name="password" class="form-control"
+                                           placeholder="Tu contraseña" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom w-100">
+                                    <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                                </button>
+                                <div class="text-center mt-3">
+                                    <a th:href="@{/recuperar-contrasena}" class="small text-decoration-none">
+                                        ¿Olvidaste tu contraseña?
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="register-panel" role="tabpanel"
+                             th:classappend="${showRegister} ? 'show active' : ''">
+                            <form th:action="@{/register}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <div class="mb-3">
+                                    <label for="registerNombre" class="form-label fw-semibold small">Nombre completo</label>
+                                    <input type="text" id="registerNombre" name="nombre" class="form-control"
+                                           th:value="${registerNombre}" placeholder="Ej: Juan Pérez" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="registerEmail" class="form-label fw-semibold small">Correo electrónico</label>
+                                    <input type="email" id="registerEmail" name="email" class="form-control"
+                                           th:value="${registerEmail}" placeholder="correo@email.com" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="registerDocumento" class="form-label fw-semibold small">Documento de identidad</label>
+                                    <input type="text" id="registerDocumento" name="documento" class="form-control"
+                                           th:value="${registerDocumento}" placeholder="Ej: 12345678" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="registerTelefono" class="form-label fw-semibold small">Teléfono</label>
+                                    <input type="tel" id="registerTelefono" name="telefono" class="form-control"
+                                           th:value="${registerTelefono}" placeholder="999 999 999" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="registerPassword" class="form-label fw-semibold small">Contraseña</label>
+                                    <input type="password" id="registerPassword" name="password" class="form-control"
+                                           placeholder="Mínimo 6 caracteres" minlength="6" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="registerConfirmacion" class="form-label fw-semibold small">Confirmar contraseña</label>
+                                    <input type="password" id="registerConfirmacion" name="confirmacion" class="form-control"
+                                           placeholder="Repite tu contraseña" minlength="6" required>
+                                </div>
+                                <p class="text-muted small">
+                                    Si reservaste como invitado, usa el mismo correo para completar tu registro.
+                                </p>
+                                <button type="submit" class="btn btn-accent w-100" style="width:100%!important;">
+                                    <i class="bi bi-person-plus"></i> Crear cuenta
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:fragment="scripts">
+    <script th:if="${showRegister}">
+        document.getElementById('register-tab').click();
+    </script>
+</th:block>
+</body>
+</html>

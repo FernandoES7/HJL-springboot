@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"></head>
+<body>
+<header th:fragment="header(activePage)" class="site-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+            <a th:href="@{/inicio}" class="d-flex align-items-center gap-2 text-decoration-none">
+                <div class="brand-logo">JL</div>
+                <div>
+                    <div class="brand-title">Hostal Boutique</div>
+                    <div class="brand-subtitle">José Luis</div>
+                </div>
+            </a>
+
+            <nav class="d-none d-lg-flex align-items-center gap-1">
+                <a th:href="@{/inicio}"
+                   th:classappend="${activePage == 'inicio'} ? 'active' : ''"
+                   class="nav-link-custom text-decoration-none">Inicio</a>
+                <a th:href="@{/habitaciones}"
+                   th:classappend="${activePage == 'habitaciones'} ? 'active' : ''"
+                   class="nav-link-custom text-decoration-none">Habitaciones</a>
+                <a th:href="@{/reservar}"
+                   th:classappend="${activePage == 'reservar'} ? 'active' : ''"
+                   class="nav-link-custom text-decoration-none">Reservar</a>
+                <a th:href="@{/contacto}"
+                   th:classappend="${activePage == 'contacto'} ? 'active' : ''"
+                   class="nav-link-custom text-decoration-none">Contacto</a>
+            </nav>
+
+            <div class="header-actions d-flex align-items-center gap-2">
+                <select class="currency-select" aria-label="Moneda" title="Cambiar moneda">
+                    <option value="PEN">PEN</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+
+                <!-- Sin sesión -->
+                <a th:if="${usuarioSesion == null}" th:href="@{/login}" class="btn-login text-decoration-none">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="d-none d-sm-inline">Iniciar sesión</span>
+                </a>
+
+                <!-- Con sesión -->
+                <div th:if="${usuarioSesion != null}" class="dropdown">
+                    <button class="btn-login dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span th:text="${usuarioSesion.nombre}">Usuario</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li th:if="${usuarioSesion.esCliente()}">
+                            <a class="dropdown-item" th:href="@{/mis-reservas}">
+                                <i class="bi bi-calendar-check me-2"></i>Mis reservas
+                            </a>
+                        </li>
+                        <li th:if="${usuarioSesion.esAdmin()}">
+                            <a class="dropdown-item" th:href="@{/admin}">
+                                <i class="bi bi-speedometer2 me-2"></i>Panel admin
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="px-0">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <nav class="d-flex d-lg-none justify-content-center align-items-center gap-2 mt-2 flex-wrap">
+            <a th:href="@{/inicio}" th:classappend="${activePage == 'inicio'} ? 'active' : ''"
+               class="nav-link-custom text-decoration-none small">Inicio</a>
+            <a th:href="@{/habitaciones}" th:classappend="${activePage == 'habitaciones'} ? 'active' : ''"
+               class="nav-link-custom text-decoration-none small">Habitaciones</a>
+            <a th:href="@{/reservar}" th:classappend="${activePage == 'reservar'} ? 'active' : ''"
+               class="nav-link-custom text-decoration-none small">Reservar</a>
+            <a th:href="@{/contacto}" th:classappend="${activePage == 'contacto'} ? 'active' : ''"
+               class="nav-link-custom text-decoration-none small">Contacto</a>
+        </nav>
+    </div>
+</header>
+</body>
+</html>

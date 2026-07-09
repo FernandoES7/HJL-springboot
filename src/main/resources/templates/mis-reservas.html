@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main}, ~{::scripts})}">
+<head>
+    <title>Mis reservas - Hostal Boutique José Luis</title>
+</head>
+<body>
+<main class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 class="section-title h3 mb-1">Mis reservas</h1>
+                <p class="text-muted mb-0" th:if="${usuarioSesion != null}"
+                   th:text="'Hola, ' + ${usuarioSesion.nombre}">Hola</p>
+            </div>
+            <a th:href="@{/reservar}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-lg"></i> Nueva reserva
+            </a>
+        </div>
+
+        <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div th:if="${#lists.isEmpty(reservas)}" class="text-center py-5">
+            <i class="bi bi-calendar-x display-4 text-muted d-block mb-3"></i>
+            <p class="text-muted">Aún no tienes reservas registradas.</p>
+            <a th:href="@{/reservar}" class="btn btn-accent d-inline-block px-4" style="width:auto;">Hacer una reserva</a>
+        </div>
+
+        <div class="row g-4" th:unless="${#lists.isEmpty(reservas)}">
+            <div class="col-12" th:each="reserva : ${reservas}">
+                <div class="reserva-cliente-card" th:classappend="${reserva.estado.name() == 'cancelada'} ? 'cancelada' : ''">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                <h5 class="fw-bold mb-0" style="color:var(--primary)"
+                                    th:text="${reserva.codigoReserva}">HB-000000</h5>
+                                <span class="badge estado-badge"
+                                      th:classappend="'estado-' + ${reserva.estado.name()}"
+                                      th:text="${reserva.estado.name()}">confirmada</span>
+                            </div>
+                            <div class="row g-2 text-muted small">
+                                <div class="col-sm-6">
+                                    <i class="bi bi-calendar-check"></i>
+                                    Check-in: <strong th:text="${#temporals.format(reserva.fechaCheckin, 'dd/MM/yyyy')}">—</strong>
+                                </div>
+                                <div class="col-sm-6">
+                                    <i class="bi bi-calendar-x"></i>
+                                    Check-out: <strong th:text="${#temporals.format(reserva.fechaCheckout, 'dd/MM/yyyy')}">—</strong>
+                                </div>
+                                <div class="col-sm-6">
+                                    <i class="bi bi-people"></i>
+                                    <span th:text="${reserva.numHuespedes} + ' huésped(es)'">1 huésped</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <i class="bi bi-cash"></i>
+                                    Total: <strong th:text="'S/ ' + ${reserva.total}">S/ 0</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <button th:if="${reserva.cancelable}" type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    th:attr="data-bs-target='#modalCancelar-' + ${reserva.idReserva}">
+                                <i class="bi bi-x-circle"></i> Cancelar reserva
+                            </button>
+                            <span th:unless="${reserva.cancelable}" class="text-muted small fst-italic">
+                                Sin acciones disponibles
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal cancelar -->
+                <div th:if="${reserva.cancelable}" class="modal fade" th:id="'modalCancelar-' + ${reserva.idReserva}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{/mis-reservas/{id}/cancelar(id=${reserva.idReserva})}" method="post">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Cancelar reserva</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de cancelar la reserva
+                                        <strong th:text="${reserva.codigoReserva}">HB-000</strong>?</p>
+                                    <label class="form-label small fw-semibold">Motivo (opcional)</label>
+                                    <textarea name="motivo" class="form-control" rows="3"
+                                              placeholder="Indica el motivo de la cancelación"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Volver</button>
+                                    <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:fragment="scripts"></th:block>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Dashboard</title></head>
+<body>
+<section>
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-blue">
+                <div class="stat-card-icon blue"><i class="bi bi-door-closed-fill"></i></div>
+                <div class="stat-card-value">
+                    <span th:text="${habitacionesOcupadas}">0</span>
+                    <span style="font-size:16px;font-weight:500;color:#64748b;">
+                        / <span th:text="${totalHabitaciones}">0</span>
+                    </span>
+                </div>
+                <div class="stat-card-label">Habitaciones Ocupadas</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-green">
+                <div class="stat-card-icon green"><i class="bi bi-calendar-check-fill"></i></div>
+                <div class="stat-card-value" th:text="${reservasHoy}">0</div>
+                <div class="stat-card-label">Reservas Activas</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-orange">
+                <div class="stat-card-icon orange"><i class="bi bi-currency-dollar"></i></div>
+                <div class="stat-card-value">
+                    S/ <span th:text="${#numbers.formatDecimal(ingresosMes,1,'COMMA',0,'POINT')}">0</span>
+                </div>
+                <div class="stat-card-label">Ingresos <span th:text="${anioSeleccionado}"></span></div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card stat-purple">
+                <div class="stat-card-icon purple"><i class="bi bi-graph-up-arrow"></i></div>
+                <div class="stat-card-value"><span th:text="${tasaOcupacion}">0</span>%</div>
+                <div class="stat-card-label">Tasa de Ocupación</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="fw-bold mb-0" style="color:#1e3a6e;">Estadísticas Mensuales</h6>
+        <form method="get" th:action="@{/admin/dashboard}" class="d-flex align-items-center gap-2">
+            <label style="font-size:13px;color:#64748b;font-weight:500;margin:0;">
+                <i class="bi bi-calendar3 me-1"></i>Año:
+            </label>
+            <select name="anio" class="form-select form-select-sm"
+                    style="width:100px;border-radius:8px;font-weight:600;"
+                    onchange="this.form.submit()">
+                <option th:each="a : ${aniosDisponibles}"
+                        th:value="${a}" th:text="${a}"
+                        th:selected="${a == anioSeleccionado}"></option>
+            </select>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-6">
+            <div class="admin-card h-100">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-graph-up me-1" style="color:#1e3a6e;"></i>
+                        Ingresos Mensuales (S/) - <span th:text="${anioSeleccionado}"></span>
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container"><canvas id="chartIngresos"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="admin-card h-100">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-bar-chart-fill me-1" style="color:#f59e0b;"></i>
+                        Tasa de Ocupación (%) - <span th:text="${anioSeleccionado}"></span>
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container"><canvas id="chartOcupacion"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="admin-card h-100">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-bar-chart-line-fill me-1" style="color:#10b981;"></i>
+                        Reservas por Mes - <span th:text="${anioSeleccionado}"></span>
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container"><canvas id="chartReservas"></canvas></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="admin-card h-100">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">
+                        <i class="bi bi-pie-chart-fill me-1" style="color:#8b5cf6;"></i>
+                        Distribución por Tipo de Habitación
+                    </span>
+                </div>
+                <div class="admin-card-body">
+                    <div class="chart-container"><canvas id="chartTipos"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <span class="admin-card-title">Reservas Recientes</span>
+            <a th:href="@{/admin/reservas}" class="btn btn-sm"
+               style="background:#eff6ff;color:#1d4ed8;font-size:13px;font-weight:600;border-radius:8px;">
+                Ver todas <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="admin-card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${reservasRecientes}">
+                        <td>
+                            <span style="font-family:monospace;font-size:13px;font-weight:600;color:#1e3a6e;"
+                                  th:text="${r.codigoReserva}"></span>
+                        </td>
+                        <td style="font-weight:500;" th:text="${r.nombreCliente}"></td>
+                        <td th:text="${r.fechaCheckin}"></td>
+                        <td th:text="${r.fechaCheckout}"></td>
+                        <td>
+                            <span class="estado-badge"
+                                  th:classappend="'badge-' + ${r.estado.name()}"
+                                  th:text="${r.estadoTexto}"></span>
+                        </td>
+                        <td>
+                            <strong style="color:#1e3a6e;">
+                                S/ <span th:text="${#numbers.formatDecimal(r.total,1,'COMMA',0,'POINT')}"></span>
+                            </strong>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reservasRecientes)}">
+                        <td colspan="6" class="text-center text-muted py-4">No hay reservas registradas.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const mesesDashboard = JSON.parse(/*[[${labelsJson}]]*/ '[]');
+        const ingresosDashboard = JSON.parse(/*[[${ingresosJson}]]*/ '[]');
+        const ocupacionDashboard = JSON.parse(/*[[${ocupacionJson}]]*/ '[]');
+        const reservasDashboard = JSON.parse(/*[[${reservasJson}]]*/ '[]');
+        const tiposDashboard = JSON.parse(/*[[${tiposJson}]]*/ '[]');
+        const cantidadTiposDashboard = JSON.parse(/*[[${cantidadPorTipoJson}]]*/ '[]');
+
+        Graficos.linea('chartIngresos', mesesDashboard, ingresosDashboard, { color: '#1e3a6e' });
+        Graficos.barras('chartOcupacion', mesesDashboard, ocupacionDashboard, { color: '#f59e0b', maximo: 100 });
+        Graficos.barras('chartReservas', mesesDashboard, reservasDashboard, { color: '#10b981' });
+        Graficos.circular('chartTipos', tiposDashboard, cantidadTiposDashboard);
+    </script>
+</section>
+</body>
+</html>

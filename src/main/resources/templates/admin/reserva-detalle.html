@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Detalle Reserva</title></head>
+<body>
+<section>
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="font-size:13px;">
+            <li class="breadcrumb-item">
+                <a th:href="@{/admin/reservas}" style="color:#1e3a6e;">Reservas</a>
+            </li>
+            <li class="breadcrumb-item active" th:text="${reserva.codigoReserva}"></li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="form-section">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="form-section-title mb-0">
+                        <i class="bi bi-calendar-check-fill me-2" style="color:#1e3a6e;"></i>
+                        Detalles de la Reserva
+                    </h5>
+                    <span class="estado-badge"
+                          th:classappend="'badge-' + ${reserva.estado.name()}"
+                          th:text="${reserva.estadoTexto}"
+                          style="font-size:13px; padding:6px 14px;"></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Código</label>
+                        <div style="font-family:monospace; font-size:16px; font-weight:700; color:#1e3a6e;"
+                             th:text="${reserva.codigoReserva}"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Fecha reserva</label>
+                        <div style="font-weight:500;" th:text="${reserva.fechaReserva}"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Check-in</label>
+                        <div style="font-size:18px; font-weight:700; color:#15803d;" th:text="${reserva.fechaCheckin}"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Check-out</label>
+                        <div style="font-size:18px; font-weight:700; color:#dc2626;" th:text="${reserva.fechaCheckout}"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Huéspedes</label>
+                        <div style="font-weight:600;" th:text="${reserva.numHuespedes} + ' persona(s)'"></div>
+                    </div>
+                    <div class="col-12" th:if="${!#lists.isEmpty(reserva.habitaciones)}">
+                        <label class="form-label" style="font-size:11px; text-transform:uppercase;">Habitaciones</label>
+                        <ul class="mb-0">
+                            <li th:each="h : ${reserva.habitaciones}"
+                                th:text="'Hab. ' + ${h.numero} + ' (Piso ' + ${h.piso} + ') - ' + ${h.nombreTipo}"></li>
+                        </ul>
+                    </div>
+                    <div class="col-12">
+                        <hr style="border-color:#f1f5f9;"/>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-size:15px; font-weight:600;">Monto Total</span>
+                            <span style="font-size:24px; font-weight:800; color:#1e3a6e;">
+                                S/ <span th:text="${#numbers.formatDecimal(reserva.total,1,'COMMA',2,'POINT')}"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="form-section mb-4">
+                <h6 class="form-section-title">
+                    <i class="bi bi-person-fill me-2" style="color:#1e3a6e;"></i> Datos del Cliente
+                </h6>
+                <div class="mb-2">
+                    <div style="font-size:13px; color:#64748b;">Nombre</div>
+                    <div style="font-weight:600;" th:text="${reserva.nombreCliente}"></div>
+                </div>
+                <div>
+                    <div style="font-size:13px; color:#64748b;">Email</div>
+                    <div style="font-weight:500; word-break:break-all;" th:text="${reserva.emailCliente}"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h6 class="form-section-title">
+                    <i class="bi bi-arrow-repeat me-2" style="color:#1e3a6e;"></i> Cambiar Estado
+                </h6>
+                <form th:action="@{/admin/reservas/cambiarEstado}" method="post">
+                    <input type="hidden" name="id" th:value="${reserva.idReserva}"/>
+                    <div class="mb-3">
+                        <select name="nuevoEstado" class="form-select">
+                            <option value="confirmada" th:selected="${reserva.estado.name() == 'confirmada'}">Confirmada</option>
+                            <option value="pendiente" th:selected="${reserva.estado.name() == 'pendiente'}">Pendiente</option>
+                            <option value="completada" th:selected="${reserva.estado.name() == 'completada'}">Completada</option>
+                            <option value="cancelada" th:selected="${reserva.estado.name() == 'cancelada'}">Cancelada</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn w-100"
+                            style="background:#1e3a6e; color:#fff; font-weight:600; border-radius:8px;">
+                        <i class="bi bi-check-lg me-1"></i> Actualizar Estado
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a th:href="@{/admin/reservas}" class="btn-action btn-view" style="padding:8px 16px;">
+            <i class="bi bi-arrow-left me-1"></i> Volver a Reservas
+        </a>
+    </div>
+</section>
+</body>
+</html>

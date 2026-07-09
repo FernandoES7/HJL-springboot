@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="brand-logo">JL</div>
+                    <div>
+                        <div class="brand-title text-white">Hostal Boutique</div>
+                        <div class="brand-subtitle">José Luis</div>
+                    </div>
+                </div>
+                <p class="small mb-0">Tu hogar lejos de casa en el corazón de Miraflores, Lima.</p>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <h6>NAVEGACIÓN</h6>
+                <ul class="list-unstyled footer-link-list">
+                    <li><a th:href="@{/inicio}">Inicio</a></li>
+                    <li><a th:href="@{/habitaciones}">Habitaciones</a></li>
+                    <li><a th:href="@{/reservar}">Reservar</a></li>
+                    <li><a th:href="@{/contacto}">Contacto</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <h6>CONTACTO</h6>
+                <div class="footer-contact-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span th:text="${hotel != null ? hotel.direccion : 'Av. José Larco 1234, Miraflores, Lima'}">
+                        Av. José Larco 1234, Miraflores, Lima
+                    </span>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="bi bi-telephone-fill"></i>
+                    <span th:text="${hotel != null ? hotel.telefono : '+51 1 234-5678'}">+51 1 234-5678</span>
+                </div>
+                <div class="footer-contact-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span th:text="${hotel != null ? hotel.email : 'info@hostaljl.com'}">info@hostaljl.com</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <h6>SÍGUENOS</h6>
+                <div class="mt-2">
+                    <a href="#" class="social-btn" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-btn" aria-label="Threads"><i class="bi bi-at"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="footer-divider">
+        <p class="text-center small mb-0">© 2026 Hostal Boutique José Luis. Todos los derechos reservados.</p>
+    </div>
+</footer>
+</body>
+</html>

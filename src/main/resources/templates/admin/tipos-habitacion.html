@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Tipos de Habitación</title></head>
+<body>
+<section>
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <p class="mb-0" style="color:#64748b; font-size:14px;">
+            <strong th:text="${#lists.size(tipos)}">0</strong> tipos de habitación registrados
+        </p>
+        <button type="button" class="btn" style="background:#1e3a6e; color:#fff; border-radius:8px; font-weight:600;"
+                data-bs-toggle="modal" data-bs-target="#modalNuevoTipo">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo tipo
+        </button>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Capacidad</th>
+                        <th>Precio base</th>
+                        <th>Cant. total</th>
+                        <th>Habitaciones</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tipo : ${tipos}">
+                        <td><span style="font-family:monospace; font-size:12px; color:#94a3b8;" th:text="'#' + ${tipo.idTipo}"></span></td>
+                        <td style="font-weight:600;" th:text="${tipo.nombre}"></td>
+                        <td th:text="${tipo.capacidad} + ' personas'"></td>
+                        <td><strong style="color:#1e3a6e;">S/ <span th:text="${#numbers.formatDecimal(tipo.precioBase,1,'COMMA',2,'POINT')}"></span></strong></td>
+                        <td th:text="${tipo.cantidadTotal}"></td>
+                        <td th:text="${tipo.totalHabitaciones}"></td>
+                        <td>
+                            <span class="estado-badge"
+                                  th:classappend="${tipo.activo} ? 'badge-disponible' : 'badge-cancelada'"
+                                  th:text="${tipo.activo} ? 'Activo' : 'Inactivo'"></span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-action btn-edit" title="Editar"
+                                    data-bs-toggle="modal" th:data-bs-target="'#modalEditarTipo' + ${tipo.idTipo}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button type="button" class="btn-action btn-delete" title="Eliminar"
+                                    data-bs-toggle="modal" th:data-bs-target="'#modalEliminarTipo' + ${tipo.idTipo}">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tipos)}">
+                        <td colspan="8" class="text-center text-muted py-5">No hay tipos de habitación registrados.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo tipo -->
+    <div class="modal fade" id="modalNuevoTipo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" th:action="@{/admin/tipos-habitacion/crear}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nuevo tipo de habitación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="nombre" class="form-control" required maxlength="100">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="descripcion" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Capacidad (personas)</label>
+                                <input type="number" name="capacidad" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio base (S/)</label>
+                                <input type="number" name="precioBase" class="form-control" min="0.01" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label class="form-label">Cantidad total</label>
+                                <input type="number" name="cantidadTotal" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">URL imagen</label>
+                                <input type="text" name="imagenUrl" class="form-control" maxlength="500">
+                            </div>
+                        </div>
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" name="activo" value="true" id="activoNuevo" checked>
+                            <label class="form-check-label" for="activoNuevo">Activo</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn" style="background:#1e3a6e; color:#fff;">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales: Editar / Eliminar por tipo -->
+    <th:block th:each="tipo : ${tipos}">
+        <div class="modal fade" th:id="'modalEditarTipo' + ${tipo.idTipo}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" th:action="@{/admin/tipos-habitacion/actualizar}">
+                        <input type="hidden" name="idTipo" th:value="${tipo.idTipo}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar tipo de habitación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" name="nombre" class="form-control" th:value="${tipo.nombre}" required maxlength="100">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea name="descripcion" class="form-control" rows="2" th:text="${tipo.descripcion}"></textarea>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Capacidad (personas)</label>
+                                    <input type="number" name="capacidad" class="form-control" min="1" th:value="${tipo.capacidad}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Precio base (S/)</label>
+                                    <input type="number" name="precioBase" class="form-control" min="0.01" step="0.01" th:value="${tipo.precioBase}" required>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cantidad total</label>
+                                    <input type="number" name="cantidadTotal" class="form-control" min="1" th:value="${tipo.cantidadTotal}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">URL imagen</label>
+                                    <input type="text" name="imagenUrl" class="form-control" maxlength="500" th:value="${tipo.imagenUrl}">
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" name="activo" value="true"
+                                       th:id="'activoEditar' + ${tipo.idTipo}" th:checked="${tipo.activo}">
+                                <label class="form-check-label" th:for="'activoEditar' + ${tipo.idTipo}">Activo</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn" style="background:#1e3a6e; color:#fff;">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" th:id="'modalEliminarTipo' + ${tipo.idTipo}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" th:action="@{/admin/tipos-habitacion/eliminar}">
+                        <input type="hidden" name="idTipo" th:value="${tipo.idTipo}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Eliminar tipo de habitación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Seguro que deseas eliminar el tipo <strong th:text="${tipo.nombre}"></strong>?</p>
+                            <p class="text-muted small" th:if="${tipo.totalHabitaciones > 0}">
+                                Este tipo tiene <strong th:text="${tipo.totalHabitaciones}"></strong> habitación(es) asociada(s)
+                                y no podrá eliminarse hasta reasignarlas.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn" style="background:#dc2626; color:#fff;">Eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</section>
+</body>
+</html>

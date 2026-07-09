@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Habitaciones</title></head>
+<body>
+<section>
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <p class="mb-0" style="color:#64748b; font-size:14px;">
+            <span th:text="${totalHabitaciones}">0</span> habitaciones —
+            <span style="color:#15803d; font-weight:600;" th:text="${habitacionesDisponibles}">0</span> disponibles,
+            <span style="color:#dc2626; font-weight:600;" th:text="${habitacionesOcupadas}">0</span> ocupadas
+        </p>
+        <button type="button" class="btn" style="background:#1e3a6e; color:#fff; border-radius:8px; font-weight:600;"
+                data-bs-toggle="modal" data-bs-target="#modalNuevaHabitacion">
+            <i class="bi bi-plus-lg me-1"></i> Nueva habitación
+        </button>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-body py-3">
+            <form method="get" th:action="@{/admin/habitaciones}" class="d-flex gap-3 align-items-end flex-wrap">
+                <div class="flex-grow-1">
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">
+                        BUSCAR HABITACIÓN
+                    </label>
+                    <div class="search-box w-100" style="max-width:100%;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="busqueda" class="form-control"
+                               placeholder="Número, tipo o piso..."
+                               th:value="${busqueda}"/>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">
+                        TIPO
+                    </label>
+                    <select name="idTipo" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todos los tipos</option>
+                        <option th:each="tipo : ${tipos}"
+                                th:value="${tipo.idTipo}"
+                                th:text="${tipo.nombre}"
+                                th:selected="${idTipoFiltro != null and idTipoFiltro == tipo.idTipo}"></option>
+                    </select>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn"
+                            style="background:#1e3a6e; color:#fff; border-radius:8px; font-weight:600; padding:9px 20px;">
+                        <i class="bi bi-search me-1"></i> Buscar
+                    </button>
+                    <a th:href="@{/admin/habitaciones}" class="btn btn-outline-secondary" style="border-radius:8px;">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-sm-6 col-xl-4" th:each="hab : ${habitaciones}">
+            <div class="room-card">
+                <img class="room-card-img"
+                     th:src="${hab.imagenUrlTipo}"
+                     th:alt="${hab.nombreTipo}"
+                     onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80'"/>
+                <div class="room-card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="room-card-name" th:text="'Hab. ' + ${hab.numero}"></div>
+                            <div class="room-card-type" th:text="${hab.nombreTipo}"></div>
+                        </div>
+                        <span class="estado-badge"
+                              th:classappend="${hab.estado.name() == 'disponible'} ? 'badge-disponible' : (${hab.estado.name() == 'ocupada'} ? 'badge-ocupada' : 'badge-pendiente')"
+                              th:text="${hab.estado.name() == 'disponible'} ? 'Disponible' : (${hab.estado.name() == 'ocupada'} ? 'Ocupada' : 'Mantenimiento')">
+                        </span>
+                    </div>
+                    <div class="room-card-info">
+                        <div class="room-card-info-row">
+                            <span class="label"><i class="bi bi-layers me-1"></i>Piso</span>
+                            <span class="value" th:text="${hab.piso}"></span>
+                        </div>
+                        <div class="room-card-info-row">
+                            <span class="label"><i class="bi bi-people me-1"></i>Capacidad</span>
+                            <span class="value" th:text="${hab.capacidadTipo} + ' personas'"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" class="btn-action btn-edit flex-fill" title="Editar"
+                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarHab' + ${hab.idHabitacion}">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </button>
+                        <button type="button" class="btn-action btn-delete flex-fill" title="Eliminar"
+                                data-bs-toggle="modal" th:data-bs-target="'#modalEliminarHab' + ${hab.idHabitacion}">
+                            <i class="bi bi-trash-fill"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Editar habitación -->
+            <div class="modal fade" th:id="'modalEditarHab' + ${hab.idHabitacion}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" th:action="@{/admin/habitaciones/actualizar}">
+                            <input type="hidden" name="idHabitacion" th:value="${hab.idHabitacion}">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Editar habitación <span th:text="${hab.numero}"></span></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Número</label>
+                                        <input type="text" name="numero" class="form-control" th:value="${hab.numero}" required maxlength="10">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Piso</label>
+                                        <input type="number" name="piso" class="form-control" min="0" th:value="${hab.piso}" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3 mt-3">
+                                    <label class="form-label">Tipo de habitación</label>
+                                    <select name="idTipo" class="form-select tipo-select" required>
+                                        <option th:each="tipo : ${tipos}"
+                                                th:value="${tipo.idTipo}"
+                                                th:text="${tipo.nombre}"
+                                                th:attr="data-capacidad=${tipo.capacidad}, data-precio=${tipo.precioBase}"
+                                                th:selected="${tipo.nombre == hab.nombreTipo}"></option>
+                                    </select>
+                                    <div class="tipo-info text-muted small mt-1"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select name="estado" class="form-select">
+                                        <option value="disponible" th:selected="${hab.estado.name() == 'disponible'}">Disponible</option>
+                                        <option value="mantenimiento" th:selected="${hab.estado.name() == 'mantenimiento'}">Mantenimiento</option>
+                                        <option value="ocupada" th:selected="${hab.estado.name() == 'ocupada'}">Ocupada</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn" style="background:#1e3a6e; color:#fff;">Guardar cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: Eliminar habitación -->
+            <div class="modal fade" th:id="'modalEliminarHab' + ${hab.idHabitacion}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" th:action="@{/admin/habitaciones/eliminar}">
+                            <input type="hidden" name="idHabitacion" th:value="${hab.idHabitacion}">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Eliminar habitación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>¿Seguro que deseas eliminar la habitación <strong th:text="${hab.numero}"></strong>?</p>
+                                <p class="text-muted small">Si tiene reservas asociadas no podrá eliminarse.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn" style="background:#dc2626; color:#fff;">Eliminar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12" th:if="${#lists.isEmpty(habitaciones)}">
+            <div class="admin-card text-center py-5">
+                <i class="bi bi-door-closed" style="font-size:64px; color:#cbd5e1;"></i>
+                <p class="mt-3 text-muted">No hay habitaciones que coincidan con la búsqueda.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nueva habitación -->
+    <div class="modal fade" id="modalNuevaHabitacion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" th:action="@{/admin/habitaciones/crear}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nueva habitación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Número</label>
+                                <input type="text" name="numero" class="form-control" required maxlength="10" placeholder="Ej: 201">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Piso</label>
+                                <input type="number" name="piso" class="form-control" min="0" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Tipo de habitación</label>
+                            <select name="idTipo" class="form-select tipo-select" required>
+                                <option value="" disabled selected>Selecciona un tipo...</option>
+                                <option th:each="tipo : ${tipos}"
+                                        th:value="${tipo.idTipo}"
+                                        th:text="${tipo.nombre}"
+                                        th:attr="data-capacidad=${tipo.capacidad}, data-precio=${tipo.precioBase}"></option>
+                            </select>
+                            <div class="tipo-info text-muted small mt-1"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select name="estado" class="form-select">
+                                <option value="disponible">Disponible</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                                <option value="ocupada">Ocupada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn" style="background:#1e3a6e; color:#fff;">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.tipo-select').forEach(function (select) {
+                var info = select.parentElement.querySelector('.tipo-info');
+                function actualizar() {
+                    var opcion = select.options[select.selectedIndex];
+                    if (!opcion || !opcion.dataset.capacidad) {
+                        info.textContent = '';
+                        return;
+                    }
+                    info.textContent = 'Capacidad: ' + opcion.dataset.capacidad + ' personas · Precio base: S/ ' + opcion.dataset.precio;
+                }
+                select.addEventListener('change', actualizar);
+                actualizar();
+            });
+        });
+    </script>
+</section>
+</body>
+</html>

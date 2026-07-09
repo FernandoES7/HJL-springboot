@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main}, ~{::scripts})}">
+<head>
+    <title>Reservar - Hostal Boutique José Luis</title>
+</head>
+<body>
+<main class="py-5">
+    <div class="container">
+        <!-- Wizard steps -->
+        <div class="wizard-steps" id="wizardSteps">
+            <div class="wizard-step active" data-step="1">
+                <div class="step-circle">1</div>
+                <span>Seleccionar fechas</span>
+            </div>
+            <div class="wizard-step" data-step="2">
+                <div class="step-circle">2</div>
+                <span>Datos personales</span>
+            </div>
+            <div class="wizard-step" data-step="3">
+                <div class="step-circle">3</div>
+                <span>Pago</span>
+            </div>
+            <div class="wizard-step" data-step="4">
+                <div class="step-circle">4</div>
+                <span>Confirmación</span>
+            </div>
+        </div>
+
+        <!-- Paso 1: Fechas y habitación -->
+        <div id="step1" class="reserva-panel">
+            <h2>Selecciona tus fechas y habitación</h2>
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold small">Check-in</label>
+                            <input type="text" id="checkinInput" class="date-input" readonly placeholder="Seleccionar">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold small">Check-out</label>
+                            <input type="text" id="checkoutInput" class="date-input" readonly placeholder="Seleccionar">
+                        </div>
+                    </div>
+
+                    <label class="form-label fw-semibold small">Número de huéspedes</label>
+                    <div class="guest-stepper mb-3">
+                        <button type="button" id="btnMenosHuespedes" aria-label="Menos huéspedes">−</button>
+                        <span id="numHuespedes">1</span>
+                        <button type="button" id="btnMasHuespedes" aria-label="Más huéspedes">+</button>
+                    </div>
+
+                    <button type="button" id="btnBuscar" class="btn btn-accent">
+                        Buscar habitaciones disponibles
+                    </button>
+
+                    <div class="calendar-widget">
+                        <div class="calendar-header">
+                            <button type="button" id="btnMesAnterior" aria-label="Mes anterior">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <h6 id="calendarTitle">Junio 2026</h6>
+                            <button type="button" id="btnMesSiguiente" aria-label="Mes siguiente">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                        <div class="calendar-legend">
+                            <span><span class="legend-dot selected"></span> Fecha seleccionada</span>
+                            <span><span class="legend-dot range"></span> Rango de estadía</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <h5 class="fw-bold mb-3" style="color:var(--primary)">Habitaciones disponibles</h5>
+                    <div id="roomsList" class="rooms-list">
+                        <div class="empty-rooms-msg">
+                            <i class="bi bi-calendar-range"></i>
+                            <p>Selecciona las fechas de tu estadía para ver las habitaciones disponibles.</p>
+                        </div>
+                    </div>
+
+                    <div class="reserva-summary" id="reservaSummary" style="display:none;">
+                        <div class="total-label">Total a pagar:</div>
+                        <div class="total-amount" id="totalAmount" data-pen-amount="0">S/ 0</div>
+                        <div class="total-detail" id="totalDetail">0 noches • 0 habitaciones</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reserva-nav">
+                <a th:href="@{/inicio}" class="btn btn-outline-custom">Cancelar</a>
+                <button type="button" id="btnSiguiente1" class="btn btn-primary-custom btn-next" disabled>
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Paso 2: Datos personales -->
+        <div id="step2" class="reserva-panel" style="display:none;">
+            <h2>Datos personales</h2>
+            <p th:if="${clienteLogueado != null}" class="text-muted small mb-3">
+                <i class="bi bi-person-check"></i> Sesión iniciada como
+                <strong th:text="${clienteLogueado.nombre}">Cliente</strong>.
+                Solo puedes actualizar tu teléfono.
+            </p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="clienteNombre" class="form-label fw-semibold small">Nombre completo</label>
+                    <input type="text" id="clienteNombre" class="form-control"
+                           th:classappend="${clienteLogueado != null} ? 'field-readonly' : ''"
+                           th:value="${clienteLogueado != null} ? ${clienteLogueado.nombre} : ''"
+                           th:readonly="${clienteLogueado != null}"
+                           placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="clienteDocumento" class="form-label fw-semibold small">Documento de identidad</label>
+                    <input type="text" id="clienteDocumento" class="form-control"
+                           th:classappend="${clienteLogueado != null} ? 'field-readonly' : ''"
+                           th:value="${clienteLogueado != null} ? ${clienteLogueado.documento} : ''"
+                           th:readonly="${clienteLogueado != null}"
+                           placeholder="Ej: 12345678" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="clienteEmail" class="form-label fw-semibold small">Correo electrónico</label>
+                    <input type="email" id="clienteEmail" class="form-control"
+                           th:classappend="${clienteLogueado != null} ? 'field-readonly' : ''"
+                           th:value="${clienteLogueado != null} ? ${clienteLogueado.email} : ''"
+                           th:readonly="${clienteLogueado != null}"
+                           placeholder="correo@email.com" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="clienteTelefono" class="form-label fw-semibold small">Teléfono</label>
+                    <input type="tel" id="clienteTelefono" class="form-control"
+                           th:value="${clienteLogueado != null and clienteLogueado.telefono != null} ? ${clienteLogueado.telefono} : ''"
+                           placeholder="999 999 999">
+                </div>
+            </div>
+            <div id="step2Error" class="alert alert-danger mt-3 mb-0" style="display:none;" role="alert"></div>
+            <div class="reserva-nav">
+                <button type="button" class="btn btn-outline-custom btn-anterior" data-target="1">Anterior</button>
+                <button type="button" id="btnSiguiente2" class="btn btn-primary-custom">
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Paso 3: Pago con tarjeta -->
+        <div id="step3" class="reserva-panel" style="display:none;">
+            <h2>Pago con tarjeta</h2>
+            <p class="text-muted">Ingresa los datos de tu tarjeta de crédito o débito. Los datos no se almacenan.</p>
+
+            <form id="pagoForm" class="mt-4" novalidate>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="cardName" class="form-label fw-semibold small">Nombre en la tarjeta</label>
+                        <input type="text" id="cardName" class="form-control" placeholder="Como aparece en la tarjeta" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="cardNumber" class="form-label fw-semibold small">Número de tarjeta</label>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="0000 0000 0000 0000"
+                               inputmode="numeric" maxlength="19" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cardExpiry" class="form-label fw-semibold small">Fecha de vencimiento</label>
+                        <input type="text" id="cardExpiry" class="form-control" placeholder="MM/AA"
+                               inputmode="numeric" maxlength="5" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cardCvv" class="form-label fw-semibold small">CVV</label>
+                        <input type="password" id="cardCvv" class="form-control" placeholder="123"
+                               inputmode="numeric" maxlength="4" required>
+                    </div>
+                </div>
+                <div id="pagoError" class="alert alert-danger mt-3 mb-0" style="display:none;" role="alert"></div>
+            </form>
+
+            <div class="reserva-nav">
+                <button type="button" class="btn btn-outline-custom btn-anterior" data-target="2">Anterior</button>
+                <button type="button" id="btnSiguiente3" class="btn btn-primary-custom">
+                    Confirmar reserva <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Paso 4: Confirmación -->
+        <div id="step4" class="reserva-panel" style="display:none;">
+            <div class="text-center py-4">
+                <div class="feature-icon mx-auto mb-3" style="width:72px;height:72px;font-size:2rem;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h2 class="section-title">¡Reserva registrada!</h2>
+                <p class="text-muted mb-4">Tu solicitud de reserva ha sido registrada exitosamente. Recibirás un correo de confirmación con los detalles.</p>
+                <div class="reserva-summary d-inline-block text-start" style="min-width:300px;">
+                    <div class="total-label">Código de reserva:</div>
+                    <div class="total-amount" id="codigoReserva" style="font-size:1.25rem;">HB-000000</div>
+                    <div class="total-detail" id="confirmDetail">—</div>
+                </div>
+                <div class="mt-4">
+                    <a th:href="@{/inicio}" class="btn btn-primary-custom">Volver al inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:fragment="scripts">
+    <script th:src="@{/js/reservar.js}"></script>
+</th:block>
+</body>
+</html>

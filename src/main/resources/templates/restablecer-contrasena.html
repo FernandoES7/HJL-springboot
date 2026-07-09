@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main}, ~{::scripts})}">
+<head>
+    <title>Restablecer contraseña - Hostal Boutique José Luis</title>
+</head>
+<body>
+<main class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="text-center mb-4">
+                        <h1 class="section-title h3">Nueva contraseña</h1>
+                        <p class="text-muted small mb-0">Ingresa tu nueva contraseña para completar la recuperación.</p>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                    <form th:if="${tokenValido}"
+                          th:action="@{/restablecer-contrasena}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="token" th:value="${token}">
+                        <div class="mb-3">
+                            <label for="nuevaPassword" class="form-label fw-semibold small">Nueva contraseña</label>
+                            <input type="password" id="nuevaPassword" name="password" class="form-control"
+                                   placeholder="Mínimo 6 caracteres" minlength="6" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="confirmarPassword" class="form-label fw-semibold small">Confirmar contraseña</label>
+                            <input type="password" id="confirmarPassword" name="confirmacion" class="form-control"
+                                   placeholder="Repite tu contraseña" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 mb-3">
+                            <i class="bi bi-shield-lock"></i> Guardar nueva contraseña
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <a th:href="@{/recuperar-contrasena}" class="small text-decoration-none me-3">
+                            Solicitar nuevo enlace
+                        </a>
+                        <a th:href="@{/login}" class="small text-decoration-none">
+                            <i class="bi bi-arrow-left"></i> Volver al inicio de sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:fragment="scripts"></th:block>
+</body>
+</html>

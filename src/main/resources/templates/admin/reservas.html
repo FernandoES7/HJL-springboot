@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Reservas</title></head>
+<body>
+<section>
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <p class="mb-0" style="color:#64748b; font-size:14px;">
+            <strong th:text="${totalReservas}">0</strong> reservas totales —
+            <span style="color:#15803d; font-weight:600;" th:text="${reservasConfirmadas}">0</span> confirmadas
+        </p>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-body py-3">
+            <form method="get" th:action="@{/admin/reservas}" class="row g-3 align-items-end">
+                <div class="col-12 col-md-5">
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">BUSCAR</label>
+                    <div class="search-box w-100" style="max-width:100%;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="busqueda" class="form-control"
+                               placeholder="Código, cliente o ID..."
+                               th:value="${busqueda}"/>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">ESTADO</label>
+                    <select name="estadoFiltro" class="form-select">
+                        <option value="TODAS" th:selected="${estadoFiltro == null or estadoFiltro == 'TODAS'}">Todas</option>
+                        <option value="confirmada" th:selected="${estadoFiltro == 'confirmada'}">Confirmadas</option>
+                        <option value="pendiente" th:selected="${estadoFiltro == 'pendiente'}">Pendientes</option>
+                        <option value="completada" th:selected="${estadoFiltro == 'completada'}">Completadas</option>
+                        <option value="cancelada" th:selected="${estadoFiltro == 'cancelada'}">Canceladas</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">CLIENTE</label>
+                    <select name="idCliente" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        <option th:each="cliente : ${clientes}"
+                                th:value="${cliente.idCliente}"
+                                th:text="${cliente.nombre}"
+                                th:selected="${idClienteFiltro != null and idClienteFiltro == cliente.idCliente}"></option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn flex-fill"
+                            style="background:#1e3a6e; color:#fff; border-radius:8px; font-weight:600;">
+                        <i class="bi bi-funnel me-1"></i> Filtrar
+                    </button>
+                    <a th:href="@{/admin/reservas}" class="btn btn-outline-secondary" style="border-radius:8px;">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Huésp.</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="reserva : ${reservas}">
+                        <td>
+                            <span style="font-family:monospace; font-size:12px; font-weight:700; color:#1e3a6e;"
+                                  th:text="${reserva.codigoReserva}"></span>
+                        </td>
+                        <td style="font-weight:500;" th:text="${reserva.nombreCliente}"></td>
+                        <td th:text="${reserva.fechaCheckin}"></td>
+                        <td th:text="${reserva.fechaCheckout}"></td>
+                        <td class="text-center" th:text="${reserva.numHuespedes}"></td>
+                        <td>
+                            <span class="estado-badge"
+                                  th:classappend="'badge-' + ${reserva.estado.name()}"
+                                  th:text="${reserva.estadoTexto}"></span>
+                        </td>
+                        <td>
+                            <strong style="color:#1e3a6e;">
+                                S/ <span th:text="${#numbers.formatDecimal(reserva.total,1,'COMMA',0,'POINT')}"></span>
+                            </strong>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/reservas/ver/{id}(id=${reserva.idReserva})}"
+                               class="btn-action btn-view" title="Ver detalle">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reservas)}">
+                        <td colspan="8" class="text-center text-muted py-5">
+                            No se encontraron reservas con los filtros aplicados.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

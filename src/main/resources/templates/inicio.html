@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::main}, ~{::scripts})}">
+<head>
+    <title>Inicio - Hostal Boutique José Luis</title>
+</head>
+<body>
+<main>
+    <!-- Banner -->
+    <section class="hero-banner">
+        <div class="container">
+            <h1>Bienvenido a Hostal Boutique José Luis</h1>
+            <p>Descubre la comodidad y elegancia en el corazón de Miraflores. Tu estadía perfecta nos espera.</p>
+            <a th:href="@{/reservar}" class="btn btn-accent d-inline-block px-5" style="width:auto;">
+                Reservar ahora
+            </a>
+        </div>
+    </section>
+
+    <!-- Por qué elegirnos -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">¿Por qué elegirnos?</h2>
+                <p class="section-subtitle">Ofrecemos una experiencia única que combina confort, ubicación y atención personalizada.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
+                        <h5 class="fw-bold" style="color:var(--primary)">Ubicación privilegiada</h5>
+                        <p class="text-muted small mb-0">En el corazón de Miraflores, cerca de restaurantes, playas y atracciones turísticas.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-stars"></i></div>
+                        <h5 class="fw-bold" style="color:var(--primary)">Habitaciones boutique</h5>
+                        <p class="text-muted small mb-0">Diseño elegante y confortable con todas las comodidades para una estadía memorable.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-headset"></i></div>
+                        <h5 class="fw-bold" style="color:var(--primary)">Atención 24/7</h5>
+                        <p class="text-muted small mb-0">Nuestro equipo está disponible en todo momento para asistirte durante tu visita.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+                        <h5 class="fw-bold" style="color:var(--primary)">Mejor precio garantizado</h5>
+                        <p class="text-muted small mb-0">Reserva directamente con nosotros y obtén las mejores tarifas sin intermediarios.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nuestras habitaciones -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Nuestras habitaciones</h2>
+                <p class="section-subtitle">Elige la opción perfecta para tu estadía</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3" th:each="hab : ${habitaciones}">
+                    <div class="room-card">
+                        <img th:src="${hab.imagenUrl}" th:alt="${hab.nombre}" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80" alt="Habitación">
+                        <div class="room-card-body">
+                            <h5 class="fw-bold" style="color:var(--primary)" th:text="${hab.nombre}">Habitación</h5>
+                            <p class="text-muted small" th:text="${#strings.abbreviate(hab.descripcion, 80)}">Descripción</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="room-price"
+                                      th:attr="data-pen-amount=${hab.precioBase}"
+                                      data-pen-suffix=" / noche"
+                                      th:text="'S/ ' + ${hab.precioBase} + ' / noche'">S/ 120 / noche</span>
+                                <span class="text-muted small">
+                                    <i class="bi bi-people"></i>
+                                    <span th:text="${hab.capacidad}">1</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a th:href="@{/habitaciones}" class="btn btn-primary-custom">Ver todas las habitaciones</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Lo que dicen nuestros huéspedes</h2>
+                <p class="section-subtitle">Experiencias reales de quienes nos han visitado</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted mb-0">"Excelente ubicación y habitaciones impecables. El personal fue muy amable y atento. Sin duda volveré en mi próxima visita a Lima."</p>
+                        <div class="testimonial-author">— María González, España</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted mb-0">"La suite premium superó nuestras expectativas. Muy cómoda, limpia y con una vista increíble. El desayuno incluido fue delicioso."</p>
+                        <div class="testimonial-author">— Carlos Mendoza, Perú</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                        <p class="text-muted mb-0">"Perfecto para viajeros solitarios. Habitación simple pero con todo lo necesario. WiFi rápido y zona muy segura. Muy recomendable."</p>
+                        <div class="testimonial-author">— Ana Rodríguez, México</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<th:block th:fragment="scripts"></th:block>
+</body>
+</html>

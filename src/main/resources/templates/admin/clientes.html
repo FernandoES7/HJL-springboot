@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html th:replace="~{admin/fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Clientes</title></head>
+<body>
+<section>
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <p class="mb-0" style="color:#64748b; font-size:14px;">
+            <strong th:text="${totalClientes}">0</strong> clientes registrados
+        </p>
+    </div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-body py-3">
+            <form method="get" th:action="@{/admin/clientes}" class="d-flex gap-3 align-items-end flex-wrap">
+                <div class="flex-grow-1">
+                    <label class="form-label mb-1" style="font-size:12px; font-weight:600; color:#64748b;">
+                        BUSCAR CLIENTE
+                    </label>
+                    <div class="search-box w-100" style="max-width:100%;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="busqueda" class="form-control"
+                               placeholder="Nombre, email o documento..."
+                               th:value="${busqueda}"/>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn"
+                            style="background:#1e3a6e; color:#fff; border-radius:8px; font-weight:600; padding:9px 20px;">
+                        <i class="bi bi-search me-1"></i> Buscar
+                    </button>
+                    <a th:href="@{/admin/clientes}" class="btn btn-outline-secondary" style="border-radius:8px;">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cliente : ${clientes}">
+                        <td>
+                            <span style="font-family:monospace; font-size:12px; font-weight:700; color:#94a3b8;"
+                                  th:text="'#' + ${cliente.idCliente}"></span>
+                        </td>
+                        <td style="font-weight:600;" th:text="${cliente.nombre}"></td>
+                        <td style="font-family:monospace;" th:text="${cliente.documento}"></td>
+                        <td style="font-size:13px; color:#64748b;" th:text="${cliente.email}"></td>
+                        <td th:text="${cliente.telefono} ?: '—'"></td>
+                        <td>
+                            <span class="estado-badge"
+                                  th:classappend="${cliente.estado.name() == 'activo'} ? 'badge-confirmada' : 'badge-cancelada'"
+                                  th:text="${cliente.estado.name() == 'activo'} ? 'Activo' : 'Inactivo'"></span>
+                        </td>
+                        <td style="font-size:12px; color:#64748b;" th:text="${cliente.fechaRegistro}"></td>
+                        <td>
+                            <button type="button" class="btn-action btn-edit" title="Editar"
+                                    data-bs-toggle="modal" th:data-bs-target="'#modalEditarCliente' + ${cliente.idCliente}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(clientes)}">
+                        <td colspan="8" class="text-center py-5 text-muted">No se encontraron clientes.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales: Editar cliente -->
+    <th:block th:each="cliente : ${clientes}">
+        <div class="modal fade" th:id="'modalEditarCliente' + ${cliente.idCliente}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" th:action="@{/admin/clientes/actualizar}">
+                        <input type="hidden" name="idCliente" th:value="${cliente.idCliente}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar cliente</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre completo</label>
+                                <input type="text" name="nombre" class="form-control" th:value="${cliente.nombre}" required maxlength="100">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" name="telefono" class="form-control" th:value="${cliente.telefono}" maxlength="20">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Estado</label>
+                                <select name="estado" class="form-select">
+                                    <option value="activo" th:selected="${cliente.estado.name() == 'activo'}">Activo</option>
+                                    <option value="inactivo" th:selected="${cliente.estado.name() == 'inactivo'}">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn" style="background:#1e3a6e; color:#fff;">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</section>
+</body>
+</html>
