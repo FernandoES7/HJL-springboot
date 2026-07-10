@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/mis-reservas/**").hasRole("CLIENTE")
                 .requestMatchers("/reservar").hasRole("CLIENTE")
                 .requestMatchers(HttpMethod.GET, "/api/disponibilidad").hasRole("CLIENTE")
+                .requestMatchers("/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/tipos-cambio").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/reservas").hasRole("CLIENTE")
                 .anyRequest().authenticated())
